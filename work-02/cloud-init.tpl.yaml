@@ -1,0 +1,35 @@
+#cloud-config
+
+users:
+  - name: student
+    groups: sudo
+    shell: /bin/bash
+    sudo: ["ALL=(ALL) NOPASSWD:ALL"]
+    ssh_authorized_keys:
+      - ${SSH_KEY}
+
+package_update: true
+
+packages:
+  - nginx
+
+runcmd:
+  - sed -i 's/listen 80 default_server;/listen ${APP_PORT} default_server;/' /etc/nginx/sites-available/default
+  - sed -i 's/listen \[::\]:80 default_server;/listen [::]:${APP_PORT} default_server;/' /etc/nginx/sites-available/default
+  - bash -c 'echo "${GREETING} on $(hostname)" > /var/www/html/index.nginx-debian.html'
+  - nginx -t
+  - systemctl restart nginx
+  - |
+    if [ -b /dev/disk/by-id/virtio-data ]; then
+      if ! blkid /dev/disk/by-id/virtio-data >/dev/null 2>&1; then
+        mkfs.ext4 /dev/disk/by-id/virtio-data
+      fi
+
+      mkdir -p /mnt/data
+
+      if ! grep -qF '/dev/disk/by-id/virtio-data /mnt/data ext4 defaults,nofail 0 2' /etc/fstab; then
+        echo '/dev/disk/by-id/virtio-data /mnt/data ext4 defaults,nofail 0 2' >> /etc/fstab
+      fi
+
+      mountpoint -q /mnt/data || mount /mnt/data
+    fi
