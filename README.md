@@ -15,3 +15,10 @@
 
 ```bash
 bash work-02/create.sh
+
+
+## CI/CD
+
+Для проверки Bash-сценариев используется GitLab CI/CD и собственный GitLab Runner `zarechkin-11-local`.
+
+Статический анализ выполняется с помощью ShellCheck.
