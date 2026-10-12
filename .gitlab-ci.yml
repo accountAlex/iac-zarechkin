@@ -27,3 +27,20 @@ cloud-access:
     - yc config set service-account-key "$YC_SERVICE_ACCOUNT_KEY_FILE"
     - yc config set folder-id b1gh5mrs65v8qh0brtoh
     - yc compute instance list
+
+stend-p2:
+  stage: cloud
+  image: alpine:3.20
+  when: manual
+  script:
+    - apk add --no-cache bash curl jq gettext openssh-client
+    - curl -sSL https://storage.yandexcloud.net/yandexcloud-yc/install.sh | bash
+    - export PATH="$HOME/yandex-cloud/bin:$PATH"
+    - yc config profile create ci
+    - yc config set service-account-key "$YC_SERVICE_ACCOUNT_KEY_FILE"
+    - yc config set folder-id b1gh5mrs65v8qh0brtoh
+    - bash work-02/create.sh
+    - bash work-02/check-lb.sh
+  after_script:
+    - export PATH="$HOME/yandex-cloud/bin:$PATH"
+    - bash work-02/destroy.sh
