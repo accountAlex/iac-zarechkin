@@ -29,7 +29,7 @@ LB_IP=$(yc load-balancer network-load-balancer get \
 
 HTTP_CODE="000"
 
-for i in 1 2 3 4 5; do
+for _ in 1 2 3 4 5; do
   CODE=$(curl -s \
     --connect-timeout 5 \
     --max-time 10 \
@@ -59,7 +59,7 @@ fi
 
 TMP_FILE=$(mktemp)
 
-for i in $(seq 1 20); do
+for _ in $(seq 1 20); do
   BODY=$(curl -s \
     --connect-timeout 3 \
     --max-time 5 \

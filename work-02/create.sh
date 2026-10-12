@@ -53,6 +53,8 @@ export APP_PORT
 export GREETING
 export SSH_KEY
 
+# Имена переменных передаются envsubst буквально и не должны раскрываться оболочкой заранее.
+# shellcheck disable=SC2016
 envsubst '${APP_PORT} ${GREETING} ${SSH_KEY}' \
   < work-02/cloud-init.tpl.yaml \
   > work-02/cloud-init.yaml
@@ -99,7 +101,7 @@ done
 
 echo "==> целевая группа"
 
-TARGETS=""
+TARGETS=()
 
 for i in $(seq 1 "$VM_COUNT"); do
   idx=$(( (i - 1) % 2 ))
@@ -108,12 +110,12 @@ for i in $(seq 1 "$VM_COUNT"); do
     --format json \
     | jq -r '.network_interfaces[0].primary_v4_address.address')
 
-  TARGETS="$TARGETS --target subnet-name=${SUBNETS[$idx]},address=$IP"
+  TARGETS+=(--target "subnet-name=${SUBNETS[$idx]},address=$IP")
 done
 
 yc load-balancer target-group create \
   --name "$PREFIX-tg" \
-  $TARGETS
+  "${TARGETS[@]}"
 
 echo "==> балансировщик"
 

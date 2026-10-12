@@ -145,6 +145,8 @@ export APP_PORT
 export GREETING
 export SSH_KEY
 
+# Имена переменных передаются envsubst буквально и не должны раскрываться оболочкой заранее.
+# shellcheck disable=SC2016
 envsubst '${APP_PORT} ${GREETING} ${SSH_KEY}' \
   < hw-01/cloud-init.tpl.yaml \
   > hw-01/cloud-init.yaml
@@ -202,22 +204,22 @@ if yc load-balancer target-group get \
 
   echo "Целевая группа $PREFIX-tg уже существует, пропускаю"
 else
-  TARGETS=""
+  TARGETS=()
 
-  for i in $(seq 1 "$WEB_COUNT"); do
-    idx=$(( (i - 1) % 2 ))
-    VM_NAME="$PREFIX-web-$i"
+for i in $(seq 1 "$WEB_COUNT"); do
+  idx=$(( (i - 1) % 2 ))
+  VM_NAME="$PREFIX-web-$i"
 
-    INTERNAL_IP=$(yc compute instance get "$VM_NAME" \
-      --format json \
-      | jq -r '.network_interfaces[0].primary_v4_address.address')
+  INTERNAL_IP=$(yc compute instance get "$VM_NAME" \
+    --format json \
+    | jq -r '.network_interfaces[0].primary_v4_address.address')
 
-    TARGETS="$TARGETS --target subnet-name=${SUBNETS[$idx]},address=$INTERNAL_IP"
-  done
+  TARGETS+=(--target "subnet-name=${SUBNETS[$idx]},address=$INTERNAL_IP")
+done
 
-  yc load-balancer target-group create \
-    --name "$PREFIX-tg" \
-    $TARGETS
+yc load-balancer target-group create \
+  --name "$PREFIX-tg" \
+  "${TARGETS[@]}"
 fi
 
 echo "==> балансировщик"
