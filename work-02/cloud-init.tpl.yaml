@@ -15,7 +15,9 @@ packages:
 
 runcmd:
   - sed -i 's/listen 80 default_server;/listen ${APP_PORT} default_server;/' /etc/nginx/sites-available/default
-  - sed -i 's/listen \[::\]:80 default_server;/listen [::]:${APP_PORT} default_server;/' /etc/nginx/sites-available/default
+  - >-
+    sed -i 's/listen \\[::\\]:80 default_server;/listen [::]:${APP_PORT} default_server;/'
+    /etc/nginx/sites-available/default
   - bash -c 'echo "${GREETING} on $(hostname)" > /var/www/html/index.nginx-debian.html'
   - nginx -t
   - systemctl restart nginx

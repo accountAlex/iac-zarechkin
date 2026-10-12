@@ -15,6 +15,13 @@ shellcheck:
     - find . -name '*.sh' ! -path './work-01/commands.sh' -print
     - find . -name '*.sh' ! -path './work-01/commands.sh' -exec shellcheck {} +
 
+yamllint:
+  stage: proverka
+  image: cytopia/yamllint:latest
+  script:
+    - echo "Проверка YAML-файлов"
+    - yamllint -c .yamllint .gitlab-ci.yml hw-01/cloud-init.tpl.yaml work-02/cloud-init.tpl.yaml
+
 cloud-access:
   stage: cloud
   image: alpine:3.20
