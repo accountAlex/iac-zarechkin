@@ -17,9 +17,12 @@ shellcheck:
 
 yamllint:
   stage: proverka
-  image: cytopia/yamllint:latest
+  image: python:3.12-alpine
+  before_script:
+    - pip install --no-cache-dir yamllint
   script:
     - echo "Проверка YAML-файлов"
+    - yamllint --version
     - yamllint -c .yamllint .gitlab-ci.yml hw-01/cloud-init.tpl.yaml work-02/cloud-init.tpl.yaml
 
 cloud-access:
