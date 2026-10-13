@@ -9,38 +9,62 @@ stages:
 shellcheck:
   stage: proverka
   image: koalaman/shellcheck-alpine:stable
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "push"'
+      changes:
+        - "**/*.sh"
+        - ".gitlab-ci.yml"
+    - when: never
   script:
     - echo "Вариант 11, слово devlab"
     - shellcheck --version
     - find . -name '*.sh' ! -path './work-01/commands.sh' -print
     - find . -name '*.sh' ! -path './work-01/commands.sh' -exec shellcheck {} +
 
-cloud-access:
-  stage: cloud
-  image: alpine:3.20
-  when: manual
+yamllint:
+  stage: proverka
+  image: python:3.12-alpine
+  before_script:
+    - pip install --no-cache-dir yamllint
   script:
-    - apk add --no-cache curl bash
-    - curl -sSL https://storage.yandexcloud.net/yandexcloud-yc/install.sh | bash
-    - export PATH="$HOME/yandex-cloud/bin:$PATH"
-    - yc config profile create ci
-    - yc config set service-account-key "$YC_SERVICE_ACCOUNT_KEY_FILE"
-    - yc config set folder-id b1gh5mrs65v8qh0brtoh
-    - yc compute instance list
+    - echo "Проверка YAML, вариант 11, слово devlab"
+    - yamllint --version
+    - yamllint -c .yamllint .gitlab-ci.yml hw-01/cloud-init.tpl.yaml work-02/cloud-init.tpl.yaml
 
-stend-p2:
-  stage: cloud
+.yc:
   image: alpine:3.20
-  when: manual
-  script:
+  before_script:
     - apk add --no-cache bash curl jq gettext openssh-client
     - curl -sSL https://storage.yandexcloud.net/yandexcloud-yc/install.sh | bash
     - export PATH="$HOME/yandex-cloud/bin:$PATH"
     - yc config profile create ci
-    - yc config set service-account-key "$YC_SERVICE_ACCOUNT_KEY_FILE"
-    - yc config set folder-id b1gh5mrs65v8qh0brtoh
+    - yc config set service-account-key "$YC_KEY_TEST"
+    - yc config set cloud-id "$YC_CLOUD_ID"
+    - yc config set folder-id "$YC_FOLDER_ID"
+
+cloud-access:
+  extends: .yc
+  stage: cloud
+  when: manual
+  script:
+    - echo "Проверяю доступ, вариант 11, слово devlab"
+    - yc vpc network list
+
+stend-p2:
+  extends: .yc
+  stage: cloud
+  when: manual
+  variables:
+    PREFIX: zarechkin-11
+    GREETING: devlab
+    RUNNER_AFTER_SCRIPT_TIMEOUT: 15m
+  script:
+    - echo "Стенд второй работы из пайплайна, вариант 11, префикс $PREFIX, слово $GREETING"
+    - mkdir -p ~/.ssh
+    - ssh-keygen -t ed25519 -N "" -f ~/.ssh/id_ed25519 -q
     - bash work-02/create.sh
     - bash work-02/check-lb.sh
   after_script:
     - export PATH="$HOME/yandex-cloud/bin:$PATH"
+    - echo "Уборка стенда, префикс $PREFIX"
     - bash work-02/destroy.sh
