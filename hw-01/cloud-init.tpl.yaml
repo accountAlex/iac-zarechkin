@@ -21,3 +21,5 @@ runcmd:
   - bash -c 'echo "${GREETING} on $(hostname)" > /var/www/html/index.nginx-debian.html'
   - nginx -t
   - systemctl restart nginx
+
+broken: [
