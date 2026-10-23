@@ -19,16 +19,20 @@ data "yandex_compute_image" "base" {
 
 # Виртуальная машина
 resource "yandex_compute_instance" "app" {
-  name        = "zarechkin-11-tf-app"
-  hostname    = "zarechkin-11-tf-app"
-  zone        = "ru-central1-d"
-  platform_id = "standard-v3"
+  name                      = "zarechkin-11-tf-app"
+  hostname                  = "zarechkin-11-tf-app"
+  zone                      = "ru-central1-d"
+  platform_id               = "standard-v3"
+  allow_stopping_for_update = true
 
+  secondary_disk {
+    disk_id = yandex_compute_disk.extra.id
+  }
 
   resources {
     cores         = 2
     core_fraction = 20
-    memory        = 2
+    memory        = 4
   }
 
   scheduling_policy {
@@ -64,4 +68,11 @@ resource "yandex_compute_instance" "app" {
 output "app_ip" {
   description = "Публичный адрес машины"
   value       = yandex_compute_instance.app.network_interface.0.nat_ip_address
+}
+
+resource "yandex_compute_disk" "extra" {
+  name = "zarechkin-11-tf-extra"
+  zone = "ru-central1-d"
+  size = 10
+  type = "network-ssd"
 }
