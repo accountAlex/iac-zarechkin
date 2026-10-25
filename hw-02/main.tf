@@ -27,7 +27,7 @@ data "yandex_compute_image" "os" {
 # Один блок создаёт две одинаковые ВМ.
 # count позволяет впоследствии увеличить стенд изменением одного числа.
 resource "yandex_compute_instance" "web" {
-  count = 2
+  count = 3
 
   name     = "zarechkin-11-hw2-web-${count.index + 1}"
   hostname = "zarechkin-11-hw2-web-${count.index + 1}"
