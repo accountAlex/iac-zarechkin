@@ -57,7 +57,7 @@ resource "yandex_compute_instance" "web" {
 
   network_interface {
     # Каждая машина подключается к подсети своей зоны.
-    subnet_id = count.index % 2 == 0 ? yandex_vpc_subnet.a.id : yandex_vpc_subnet.b.id
+    subnet_id = count.index == 0 ? yandex_vpc_subnet.a.id : yandex_vpc_subnet.b.id
     nat       = true
   }
 
