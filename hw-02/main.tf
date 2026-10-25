@@ -33,7 +33,7 @@ resource "yandex_compute_instance" "web" {
   hostname = "zarechkin-11-hw2-web-${count.index + 1}"
 
   # Распределяем машины по двум зонам.
-  zone = count.index % 2 == 0 ? "ru-central1-e" : "ru-central1-d"
+  zone = count.index == 0 ? "ru-central1-e" : "ru-central1-d"
 
   platform_id = "standard-v3"
 
@@ -51,7 +51,7 @@ resource "yandex_compute_instance" "web" {
     initialize_params {
       image_id = data.yandex_compute_image.os.id
       size     = 20
-      type     = "network-hdd"
+      type     = count.index == 2 ? "network-ssd" : "network-hdd"
     }
   }
 
