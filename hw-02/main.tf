@@ -1,6 +1,6 @@
 # Сеть стенда
 resource "yandex_vpc_network" "net" {
-     name = "zarechkin-11-hw2-net"
+  name = "zarechkin-11-hw2-net"
 }
 
 # Подсеть A
