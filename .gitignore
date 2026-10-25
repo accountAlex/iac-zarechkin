@@ -15,3 +15,11 @@ hw-01/cloud-init.yaml
 *.tfstate
 *.tfstate.*
 .terraform/
+
+# Terraform secrets
+**/secrets.auto.tfvars
+**/secrets.auto.tfvars.json
+
+# Terraform plan files
+**/tfplan
+*.tfplan
